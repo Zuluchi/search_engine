@@ -14,7 +14,7 @@ public class DataBase {
                 connection = DriverManager.getConnection(
                         "jdbc:mysql://localhost:3306/" + dbName +
                                 "?user=" + dbUser + "&password=" + dbPass
-                                + "&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC");
+                                + "&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC&useUnicode=true&characterEncoding=UTF-8");
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -30,7 +30,7 @@ public class DataBase {
                 "code INT NOT NULL, " +
                 "content MEDIUMTEXT NOT NULL, " +
                 "PRIMARY KEY(id), " +
-                "UNIQUE KEY path(path(1000)))");
+                "UNIQUE KEY path(path(500)))");
         connection.setAutoCommit(false);
     }
 
