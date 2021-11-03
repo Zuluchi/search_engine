@@ -8,7 +8,8 @@ import java.io.IOException;
 public class JsoupData {
 
     public static Connection createConnection(String url) {
-        return Jsoup.connect(url).userAgent("searchEngineBot/0.1").referrer("http://www.google.com").ignoreHttpErrors(true).ignoreContentType(true);
+        return Jsoup.connect(url).userAgent("searchEngineBot/0.1").referrer("http://www.google.com")
+                .ignoreHttpErrors(true).ignoreContentType(true);
     }
 
     public static int getResponseCode(Connection connection) throws IOException {
@@ -18,7 +19,6 @@ public class JsoupData {
 
     public static Elements getElements(Connection connection) throws InterruptedException, IOException {
         Document doc = connection.get();
-        Elements link = doc.getElementsByTag("a");
-        return link;
+        return connection.get().getElementsByTag("a");
     }
 }

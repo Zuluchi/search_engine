@@ -34,8 +34,8 @@ public class DataBase {
         connection.setAutoCommit(false);
     }
 
-    public static void insertPage(String url, String path, int code, String content) throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `" + url
+    public static void insertPage(String table, String path, int code, String content) throws SQLException {
+        PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `" + table
                 + "` (path, code, content) VALUES ( ?, ?, ?)");
         preparedStatement.setString(1, path);
         preparedStatement.setInt(2, code);
