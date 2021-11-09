@@ -4,7 +4,7 @@ import java.util.ArrayList;
 public class DataBase {
     private static final String dbName = "search_engine";
     private static final String dbUser = "root";
-    private static final String dbPass = "Tenzosix34";
+    private static final String dbPass = "password";
     private static Connection connection;
 
     public static Connection getDBConnection() {
@@ -14,7 +14,8 @@ public class DataBase {
                 connection = DriverManager.getConnection(
                         "jdbc:mysql://localhost:3306/" + dbName +
                                 "?user=" + dbUser + "&password=" + dbPass
-                                + "&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC&useUnicode=true&characterEncoding=UTF-8");
+                                + "&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC&" +
+                                "useUnicode=true&characterEncoding=UTF-8");
             } catch (SQLException e) {
                 e.printStackTrace();
             }

@@ -13,7 +13,7 @@ import java.util.concurrent.RecursiveAction;
 
 public class UrlParser extends RecursiveAction {
     private final static String urlRegex = "(?i).*(\\.(doc|pdf|xml|xls|xlsx|jpg|jpeg|gif|png|rar|zip|exe|bin|ppt|apk|" +
-            "jar|mp3|aac|csv|json|eps)|/{3,}|#+|\\?).*$";
+            "jar|mp3|aac|csv|json|eps|nc|fig)|/{3,}|#+).*$";
     private final Set<String> urlSet;
     private final String url;
     private final String rootUrl;
@@ -45,7 +45,7 @@ public class UrlParser extends RecursiveAction {
                 }
             }
         } catch (IOException | InterruptedException | SQLException e) {
-            System.out.println(url);
+            System.err.println(url);
             System.out.println(e.getMessage());
         }
         for (UrlParser parser : tasks) {
