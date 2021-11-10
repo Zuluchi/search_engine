@@ -4,7 +4,7 @@ import java.util.ArrayList;
 public class DataBase {
     private static final String dbName = "search_engine";
     private static final String dbUser = "root";
-    private static final String dbPass = "password";
+    private static final String dbPass = "Tenzosix34";
     private static Connection connection;
 
     public static Connection getDBConnection() {
