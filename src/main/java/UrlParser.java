@@ -58,7 +58,7 @@ public class UrlParser extends RecursiveAction {
         String bodyText = JsoupData.getBodyText(connection);
         String titleText = JsoupData.getTitleText(connection);
 
-        if (responseCode != 404 || responseCode != 500) {
+        if (responseCode == 200) {
             Map<String, Integer> lemmasId = DataBase
                     .insertLemmsAndGetId(lemmatizer.getLemmaSet(bodyText + " " + titleText));
             Map<String, Float> titleLemmasCount = lemmatizer.countLemmasOnField(titleText);
