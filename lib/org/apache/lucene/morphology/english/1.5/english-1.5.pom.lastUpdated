@@ -1,0 +1,8 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Sat Nov 13 14:11:11 MSK 2021
+@default-bintray-https\://dl.bintray.com/akuznetsov/russianmorphology/.lastUpdated=1636801871371
+https\://repo.maven.apache.org/maven2/.lastUpdated=1636801740136
+https\://download.java.net/maven/2/.lastUpdated=1636801738714
+https\://dl.bintray.com/akuznetsov/russianmorphology/.error=Could not transfer artifact org.apache.lucene.morphology\:english\:pom\:1.5 from/to bintray (https\://dl.bintray.com/akuznetsov/russianmorphology)\: Authorization failed for https\://dl.bintray.com/akuznetsov/russianmorphology/org/apache/lucene/morphology/english/1.5/english-1.5.pom 403 Forbidden
+https\://repo.maven.apache.org/maven2/.error=
+https\://download.java.net/maven/2/.error=

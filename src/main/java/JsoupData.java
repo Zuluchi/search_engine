@@ -1,6 +1,5 @@
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
@@ -17,8 +16,15 @@ public class JsoupData {
         return response.statusCode();
     }
 
-    public static Elements getElements(Connection connection) throws InterruptedException, IOException {
-        Document doc = connection.get();
+    public static Elements getElementsByTagA(Connection connection) throws InterruptedException, IOException {
         return connection.get().getElementsByTag("a");
+    }
+
+    public static String getTitleText(Connection connection) throws InterruptedException, IOException {
+        return connection.get().title();
+    }
+
+    public static String getBodyText(Connection connection) throws InterruptedException, IOException {
+        return connection.get().body().text();
     }
 }
