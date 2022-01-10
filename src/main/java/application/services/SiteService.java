@@ -1,49 +1,62 @@
 package application.services;
 
-import application.Lemmatizer;
-import application.config.SitesConfig;
 import application.models.Site;
 import application.models.SiteStatusType;
 import application.repositories.SiteRepository;
-import application.responses.ResultResponse;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
-import java.util.*;
-import java.util.concurrent.ForkJoinPool;
+import java.util.Optional;
 
 @Service
 public class SiteService {
     @Autowired
     private SiteRepository siteRepository;
-    @Autowired
-    private SitesConfig sitesConfig;
-    @Autowired
-    private IndexService indexService;
-    @Autowired
-    private LemmaService lemmaService;
-    @Autowired
-    private PageService pageService;
+
+    @Getter
+    @Setter
+    private boolean isIndexingStarted;
+
+    @Getter
+    @Setter
+    private boolean indexingStopFlag;
 
 
-
-    public void saveSite(Site site) {
-        siteRepository.save(site);
+    @Transactional(readOnly = true)
+    public Site findSiteByName(String siteName){
+        return siteRepository.findByUrl(siteName).orElseThrow();
     }
 
-    public void updateStatusTime(Site site){
+
+    @Transactional
+    public Site saveSiteIfNotExist(Site site) {
+        Optional<Site> siteOptional = siteRepository.findByName(site.getName());
+        return siteOptional.orElseGet(() -> siteRepository.save(site));
+    }
+
+    public void updateStatusTime(Site site) {
         site.setStatusTime(new Timestamp(System.currentTimeMillis()));
         siteRepository.save(site);
     }
 
-    public void updateStatus(Site site){
-        site.setStatus(SiteStatusType.INDEXED);
+    @Transactional
+    public void updateStatus(Site site, SiteStatusType statusType) {
+        site.setStatus(statusType);
         siteRepository.save(site);
     }
 
+    @Transactional
+    public void updateErrorMessage(Site site, String error) {
+        site.setLastError(error);
+        siteRepository.save(site);
+    }
 
+    @Transactional
+    public void deleteAllData() {
+        siteRepository.deleteAll();
+    }
 }

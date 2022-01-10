@@ -1,8 +1,7 @@
 package application.models;
 
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -10,6 +9,7 @@ import java.util.Collection;
 @Entity
 @Data
 @Table(name = "_lemma", schema = "search_engine")
+@NoArgsConstructor
 public class Lemma {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +23,7 @@ public class Lemma {
     @Column(name = "frequency")
     private int frequency;
 
-    @OneToMany(mappedBy = "lemmaByLemmaId")
+    @OneToMany(mappedBy = "lemmaByLemmaId", cascade = CascadeType.ALL)
     private Collection<Index> indicesById;
 
     @ManyToOne()
@@ -34,9 +34,5 @@ public class Lemma {
         this.lemma = lemma;
         this.frequency = frequency;
         this.siteBySiteId = siteBySiteId;
-    }
-
-    public Lemma() {
-
     }
 }

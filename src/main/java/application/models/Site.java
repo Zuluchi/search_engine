@@ -31,9 +31,9 @@ public class Site {
     @Column(name = "name")
     private String name;
 
-    @OneToMany(mappedBy = "siteBySiteId")
+    @OneToMany(mappedBy = "siteBySiteId", cascade = CascadeType.ALL)
     private Collection<Lemma> lemmataById;
 
-    @OneToMany(mappedBy = "siteBySiteId")
+    @OneToMany(mappedBy = "siteBySiteId", cascade = CascadeType.ALL)
     private Collection<Page> pagesById;
 }

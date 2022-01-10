@@ -1,8 +1,6 @@
 package application.models;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -25,7 +23,7 @@ public class Page {
     @Column(name = "content")
     private String content;
 
-    @OneToMany(mappedBy = "pageByPageId")
+    @OneToMany(mappedBy = "pageByPageId", cascade = CascadeType.ALL)
     private Collection<Index> indicesById;
 
     @ManyToOne
