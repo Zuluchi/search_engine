@@ -23,7 +23,7 @@ public class Lemma {
     @Column(name = "frequency")
     private int frequency;
 
-    @OneToMany(mappedBy = "lemmaByLemmaId", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "lemmaByLemmaId")
     private Collection<Index> indicesById;
 
     @ManyToOne()

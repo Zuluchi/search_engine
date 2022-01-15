@@ -18,8 +18,8 @@ siteconfig:
   sites:
   - url: https://www.svetlovka.ru
     name: svetlovka
-  - url: https://et-cetera.ru
-    name: et-cetera
+  - url: https://nikoartgallery.com
+    name: nikoartgallery
 
 spring:
   security:
@@ -27,3 +27,4 @@ spring:
       name: admin
       password: admin
       roles: ADMIN
+

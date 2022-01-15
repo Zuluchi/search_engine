@@ -40,7 +40,11 @@ public class UrlParserService {
         ArrayList<Site> sitesConfigSites = sitesConfig.getSites();
         siteService.setIndexingStarted(true);
         siteService.setIndexingStopFlag(false);
-        siteService.deleteAllData();
+
+        indexService.deleteAllIndexData();
+        pageService.deleteAllPageData();
+        lemmaService.deleteAllLemmaData();
+        siteService.deleteAllSiteData();
 
         for (Site site : sitesConfigSites) {
             CompletableFuture.runAsync(() -> {
@@ -63,8 +67,8 @@ public class UrlParserService {
 
         ForkJoinPool forkJoinPool = new ForkJoinPool();
         Set<String> parsedURLs = Collections.synchronizedSet(new HashSet<>());
-        parsedURLs.add(dbSite.getUrl().toLowerCase(Locale.ROOT));
-        UrlParser urlParser = new UrlParser(dbSite.getUrl().toLowerCase(Locale.ROOT), dbSite, parsedURLs);
+        parsedURLs.add(dbSite.getUrl().toLowerCase(Locale.ROOT) + "/");
+        UrlParser urlParser = new UrlParser(dbSite.getUrl().toLowerCase(Locale.ROOT) + "/", dbSite, parsedURLs);
         urlParser.setIndexService(indexService);
         urlParser.setLemmaService(lemmaService);
         urlParser.setPageService(pageService);
@@ -92,7 +96,7 @@ public class UrlParserService {
         siteFromConfig.setStatus(SiteStatusType.INDEXING);
         Site dbSite = siteService.saveSiteIfNotExist(siteFromConfig);
 
-        Optional<Page> pageOptional = pageService.getPageByPath(url.substring(dbSite.getUrl().length()));
+        Optional<Page> pageOptional = pageService.getPageByPath(url.substring(dbSite.getUrl().length()), dbSite);
         if (pageOptional.isPresent()) {
             lemmaService.unCountLemmasOfPage(pageOptional.get().getId());
             pageService.deletePage(pageOptional.get());

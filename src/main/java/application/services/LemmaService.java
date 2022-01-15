@@ -35,12 +35,12 @@ public class LemmaService {
     }
 
     @Transactional(readOnly = true)
-    public List<ModelId> findLemmas(Set<String> lemmas) {
-        return lemmaRepository.findByLemmaInOrderByFrequency(lemmas);
+    public List<ModelId> findLemmasIdBySiteOrderByFrequency(Set<String> lemmas, Site site) {
+        return lemmaRepository.findByLemmaInAndSiteBySiteIdOrderByFrequency(lemmas, site);
     }
 
-    @Transactional(readOnly = true)
-    public List<ModelId> findLemmasBySite(Set<String> lemmas, Site site) {
-        return lemmaRepository.findByLemmaInAndSiteBySiteIdOrderByFrequency(lemmas, site);
+    @Transactional
+    public void deleteAllLemmaData(){
+        lemmaRepository.deleteAll();
     }
 }

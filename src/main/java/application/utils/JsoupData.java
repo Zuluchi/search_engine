@@ -7,6 +7,7 @@ import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Locale;
 
 @Component
 public class JsoupData {
@@ -37,35 +38,47 @@ public class JsoupData {
     public static String getSnippetInHtml(String htmlText, String searchQuery) {
         Document doc = Jsoup.parse(htmlText);
         String textOfSearchQuery = doc.getElementsContainingOwnText(searchQuery).text();
+        String[] queryWords = searchQuery.split("\\s+");
 
         if (!textOfSearchQuery.isEmpty()) {
-            int firstIndexOfSnippet = textOfSearchQuery.indexOf(searchQuery) > 40 ?
-                    textOfSearchQuery.indexOf(searchQuery) - 40 : 0;
-            int lastIndexOfSnippet = Math.min(firstIndexOfSnippet + searchQuery.length() + 40,
-                    textOfSearchQuery.length() - 1);
+            int firstIndexOfSnippet = textOfSearchQuery.indexOf(searchQuery) > 80 ?
+                    textOfSearchQuery.indexOf(searchQuery) - 80 : 0;
+            int lastIndexOfSnippet = Math.min(firstIndexOfSnippet + searchQuery.length() + 160,
+                    textOfSearchQuery.length());
 
-            return textOfSearchQuery.substring(firstIndexOfSnippet, lastIndexOfSnippet)
-                    .replace(searchQuery, "<b>" + searchQuery + "</b>");
+            String firstWordSnippet = textOfSearchQuery.substring(firstIndexOfSnippet, lastIndexOfSnippet)
+                    .replaceAll(createSnippetRegex(queryWords[0]), "<b>" + queryWords[0]);
+
+            return firstWordSnippet.replaceAll(createSnippetRegex(queryWords[queryWords.length - 1]),
+                    queryWords[queryWords.length - 1] + "</b>");
+        } else {
+            StringBuilder snippetBuilder = new StringBuilder();
+
+            for (String word : queryWords) {
+                String substring = word.substring(0, word.length() - 2);
+                String textOfSearchWord = doc.getElementsContainingOwnText(substring).text();
+                if (!textOfSearchWord.isEmpty()) {
+                    int firstIndexOfSnippet = textOfSearchWord.indexOf(word) > 30 ?
+                            textOfSearchWord.indexOf(word) - 30 : 0;
+                    int lastIndexOfSnippet = Math.min(firstIndexOfSnippet + word.length() + 80, textOfSearchWord.length() - 1);
+                    String snippetPart = textOfSearchWord.substring(firstIndexOfSnippet, lastIndexOfSnippet)
+                            .replaceAll(createSnippetRegex(substring), "<b>" + substring + "</b>");
+                    snippetBuilder.append(snippetPart);
+                    snippetBuilder.append("...");
+                }
+            }
+
+            return snippetBuilder.toString();
         }
-
-        StringBuilder snippetBuilder = new StringBuilder();
-        String[] queryWords = searchQuery.split(" ");
-
-        for (String word : queryWords) {
-            String substring = word.substring(0, word.length() - 2);
-            String textOfSearchWord = doc.getElementsContainingOwnText(substring).text();
-            int firstIndexOfSnippet = textOfSearchWord.indexOf(word) > 40 ?
-                    textOfSearchWord.indexOf(word) - 40 : 0;
-            int lastIndexOfSnippet = Math.min(firstIndexOfSnippet + word.length() + 40, textOfSearchWord.length() - 1);
-            String snippetPart = textOfSearchWord.substring(firstIndexOfSnippet, lastIndexOfSnippet)
-                    .replaceAll("(?i)\\w?" + substring, "<b>" + substring + "</b>...");
-            snippetBuilder.append(snippetPart);
-        }
-
-        return snippetBuilder.toString();
     }
 
     public static String getTitle(String htmlText) {
         return Jsoup.parse(htmlText).title();
+    }
+
+    private static String createSnippetRegex(String word) {
+        String firstChar = String.valueOf(word.charAt(0));
+        return "(?i)([" + firstChar.toLowerCase(Locale.ROOT) + firstChar.toUpperCase(Locale.ROOT) + "]" +
+                word.substring(1) + ")";
     }
 }

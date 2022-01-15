@@ -2,19 +2,20 @@ package application.repositories;
 
 import application.models.Page;
 import application.models.Site;
-import application.models.dto.interfaces.PageSearchModel;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 public interface PageRepository extends CrudRepository<Page, Integer> {
 
     long countBySiteBySiteId(Site siteBySiteId);
 
-    Optional<Page> findByPath(String path);
+    Optional<Page> findByPathAndSiteBySiteId(String path, Site site);
 
-    List<PageSearchModel> findByIdInOrderById(Collection<Integer> id);
-
+    @Override
+    @Modifying
+    @Query("DELETE FROM Page")
+    void deleteAll();
 }

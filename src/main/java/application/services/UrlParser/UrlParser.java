@@ -66,7 +66,7 @@ public class UrlParser extends RecursiveAction {
                     }
                 }
             } catch (IOException | InterruptedException | SQLException e) {
-               siteService.updateErrorMessage(site, url + " - " + e.getMessage());
+                siteService.updateErrorMessage(site, url + " - " + e.getMessage());
             }
             for (UrlParser parser : tasks) {
                 parser.join();

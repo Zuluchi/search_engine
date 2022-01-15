@@ -25,12 +25,15 @@ public class SiteService {
     @Setter
     private boolean indexingStopFlag;
 
-
     @Transactional(readOnly = true)
-    public Site findSiteByName(String siteName){
-        return siteRepository.findByUrl(siteName).orElseThrow();
+    public Iterable<Site> findAllSites() {
+        return siteRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
+    public Site findSiteByName(String siteName) {
+        return siteRepository.findByUrl(siteName).orElseThrow();
+    }
 
     @Transactional
     public Site saveSiteIfNotExist(Site site) {
@@ -56,7 +59,7 @@ public class SiteService {
     }
 
     @Transactional
-    public void deleteAllData() {
+    public void deleteAllSiteData() {
         siteRepository.deleteAll();
     }
 }

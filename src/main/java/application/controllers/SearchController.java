@@ -19,7 +19,7 @@ public class SearchController {
     SearchService searchService;
 
     @GetMapping("/search")
-    public ResponseEntity<Object> indexPage(
+    public ResponseEntity<Object> search(
             @RequestParam(value = "query") String query,
             @RequestParam(value = "site", required = false) String site,
             @RequestParam(value = "offset", defaultValue = "0", required = false) int offset,

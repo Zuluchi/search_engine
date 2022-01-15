@@ -47,13 +47,17 @@ public class IndexingController {
     @PostMapping("/indexPage")
     public ResponseEntity<Object> indexPage(@RequestParam(value = "url") String url) throws SQLException, IOException,
             InterruptedException {
-        ArrayList<Site> siteArrayList = sitesConfig.getSites();
-        for (Site siteFromConfig : siteArrayList) {
-            if (url.toLowerCase(Locale.ROOT).contains(siteFromConfig.getUrl())) {
-                return ResponseEntity.ok(urlParserService.indexOnePage(url, siteFromConfig));
+        if (!siteService.isIndexingStarted()) {
+            ArrayList<Site> siteArrayList = sitesConfig.getSites();
+            for (Site siteFromConfig : siteArrayList) {
+                if (url.toLowerCase(Locale.ROOT).contains(siteFromConfig.getUrl())) {
+                    return ResponseEntity.ok(urlParserService.indexOnePage(url, siteFromConfig));
+                }
             }
+            return ResponseEntity.badRequest().body(new ErrorResponse("Данная страница находится за пределами сайтов, " +
+                    "указаных в конфигурационном файле."));
         }
-        return ResponseEntity.badRequest().body(new ErrorResponse("Данная страница находится за пределами сайтов, " +
-                "указаных в конфигурационном файле."));
+        return ResponseEntity.badRequest().body(new ErrorResponse("Индексация уже запущена. Остановите индексацию, " +
+                "или дождитесь ее окончания"));
     }
 }

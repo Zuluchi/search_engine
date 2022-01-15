@@ -23,7 +23,7 @@ public class Page {
     @Column(name = "content")
     private String content;
 
-    @OneToMany(mappedBy = "pageByPageId", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "pageByPageId")
     private Collection<Index> indicesById;
 
     @ManyToOne

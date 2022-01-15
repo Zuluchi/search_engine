@@ -2,15 +2,11 @@ package application.services;
 
 import application.models.Page;
 import application.models.Site;
-import application.models.dto.interfaces.PageRelevance;
-import application.models.dto.interfaces.PageSearchModel;
 import application.repositories.PageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -29,17 +25,18 @@ public class PageService {
     }
 
     @Transactional
-    public Optional<Page> getPageByPath(String path) {
-        return pageRepository.findByPath(path);
+    public Optional<Page> getPageByPath(String path, Site site) {
+        return pageRepository.findByPathAndSiteBySiteId(path, site);
     }
 
+    @Transactional
     public void deletePage(Page page) {
         pageRepository.delete(page);
     }
 
-    public List<PageSearchModel> findPageData(List<PageRelevance> pageRelevanceList) {
-        List<Integer> pageIds = new ArrayList<>();
-        pageRelevanceList.forEach(pageRelevance -> pageIds.add(pageRelevance.getPageId()));
-        return pageRepository.findByIdInOrderById(pageIds);
+    @Transactional
+    public void deleteAllPageData(){
+        pageRepository.deleteAll();
     }
+
 }

@@ -5,8 +5,9 @@ import application.models.Lemma;
 import application.models.Page;
 import application.models.dto.interfaces.IndexPageId;
 import application.models.dto.interfaces.ModelId;
-import application.models.dto.interfaces.PageRelevance;
+import application.models.dto.interfaces.PageRelevanceAndData;
 import application.repositories.IndexRepository;
+import application.requests.OffsetAndLimitRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 public class IndexService {
@@ -64,11 +66,18 @@ public class IndexService {
     }
 
     @Transactional(readOnly = true)
-    public List<PageRelevance> findPageRelevance(List<IndexPageId> pageIdList, List<ModelId> lemmaIdList) {
+    public List<PageRelevanceAndData> findPageRelevanceAndData(Set<IndexPageId> pageIdList, Set<ModelId> lemmaIdList,
+                                                               int limit, int offset) {
         ArrayList<Integer> pageIds = new ArrayList<>();
         pageIdList.forEach(indexPageId -> pageIds.add(indexPageId.getPageId()));
         ArrayList<Integer> lemmaIds = new ArrayList<>();
         lemmaIdList.forEach(indexLemmaId -> lemmaIds.add(indexLemmaId.getId()));
-        return indexRepository.findPageRelevance(pageIds, lemmaIds);
+
+        return indexRepository.findPageRelevanceAndData(pageIds, lemmaIds, new OffsetAndLimitRequest(limit, offset));
+    }
+
+    @Transactional
+    public void deleteAllIndexData(){
+        indexRepository.deleteAll();
     }
 }

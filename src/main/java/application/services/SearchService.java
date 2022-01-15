@@ -2,10 +2,8 @@ package application.services;
 
 import application.models.dto.interfaces.IndexPageId;
 import application.models.dto.interfaces.ModelId;
-import application.models.dto.interfaces.PageRelevance;
-import application.models.dto.interfaces.PageSearchModel;
+import application.models.dto.interfaces.PageRelevanceAndData;
 import application.models.dto.search.PageSearchDto;
-import application.responses.ErrorResponse;
 import application.responses.SearchResponse;
 import application.utils.JsoupData;
 import application.utils.Lemmatizer;
@@ -15,7 +13,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -35,42 +33,62 @@ public class SearchService {
         this.lemmatizer = new Lemmatizer();
     }
 
-    public Object search(String findQuery, String site, int offset, int limit) throws SQLException {
-        Set<String> findQueryLemms = lemmatizer.getLemmaSet(findQuery);
+    public Object search(String findQuery, String siteUrl, int offset, int limit) throws SQLException {
+        Set<String> findQueryLemmas = lemmatizer.getLemmaSet(findQuery);
 
-        List<ModelId> lemmasIdList = (site == null) ? lemmaService.findLemmas(findQueryLemms) :
-                lemmaService.findLemmasBySite(findQueryLemms, siteService.findSiteByName(site));
+        Set<ModelId> allLemmasIds = new HashSet<>();
+        Set<IndexPageId> allPageIds = new HashSet<>();
 
-        if (!lemmasIdList.isEmpty()) {
-            List<IndexPageId> searchedPagesId = indexService.findPagesIds(lemmasIdList.get(0).getId());
-                for (int lemma = 1; lemma < lemmasIdList.size() - 1; lemma++) {
-                    searchedPagesId = indexService.getPagesIdOfNextLemmas(lemmasIdList.get(lemma).getId(), searchedPagesId);
-                }
-
-            int pageLimit = Math.min(searchedPagesId.size(), limit);
-            int pageOffset = Math.min(searchedPagesId.size(), offset);
-
-            List<PageRelevance> pageIdAndRelevance = indexService.findPageRelevance(
-                    searchedPagesId.subList(pageOffset, pageLimit), lemmasIdList);
-            List<PageSearchModel> pageData = pageService.findPageData(pageIdAndRelevance);
-
-            ArrayList<PageSearchDto> searchResult = new ArrayList<>();
-            for (int page = 0; page <= pageIdAndRelevance.size() - 1; page++) {
-                PageSearchDto searchDto = new PageSearchDto();
-                searchDto.setSite(pageData.get(page).getSiteBySiteId().getUrl());
-                searchDto.setSiteName(pageData.get(page).getSiteBySiteId().getName());
-                searchDto.setUri(pageData.get(page).getPath());
-                searchDto.setTitle(JsoupData.getTitle(pageData.get(page).getContent()));
-                searchDto.setSnippet(JsoupData.getSnippetInHtml(pageData.get(page).getContent(), findQuery));
-                searchDto.setRelevance(pageIdAndRelevance.get(page).getRelevance());
-
-                searchResult.add(searchDto);
-            }
-            Collections.sort(searchResult);
-
-            return new SearchResponse(searchResult.size(), searchResult);
-
+        if (siteUrl == null) {
+            siteService.findAllSites().forEach(site -> {
+                List<ModelId> lemmasIdsOfSite = lemmaService.findLemmasIdBySiteOrderByFrequency(findQueryLemmas, site);
+                allLemmasIds.addAll(lemmasIdsOfSite);
+                allPageIds.addAll(getPageIdsOfSite(lemmasIdsOfSite));
+            });
+        } else {
+            List<ModelId> lemmasIdsOfSite = lemmaService.findLemmasIdBySiteOrderByFrequency(findQueryLemmas,
+                    siteService.findSiteByName(siteUrl));
+            allLemmasIds.addAll(lemmasIdsOfSite);
+            allPageIds.addAll(getPageIdsOfSite(lemmasIdsOfSite));
         }
-        return new ErrorResponse("Ничего не найдено");
+
+        List<PageRelevanceAndData> pageData = indexService.findPageRelevanceAndData(allPageIds, allLemmasIds,
+                limit, offset);
+
+        return new SearchResponse(allPageIds.size(), createSearchResult(pageData, findQuery));
+    }
+
+    private List<IndexPageId> getPageIdsOfSite(List<ModelId> lemmasIdsOfSite) {
+        List<IndexPageId> pageIdsOfSite = new ArrayList<>();
+        if (!lemmasIdsOfSite.isEmpty()) {
+            pageIdsOfSite = indexService.findPagesIds(lemmasIdsOfSite.get(0).getId());
+            if (lemmasIdsOfSite.size() > 2) {
+                for (int lemma = 1; lemma < lemmasIdsOfSite.size() - 1; lemma++) {
+                    pageIdsOfSite = indexService.getPagesIdOfNextLemmas(lemmasIdsOfSite.get(lemma).getId(),
+                            pageIdsOfSite);
+                }
+                return pageIdsOfSite;
+            }
+        }
+        return pageIdsOfSite;
+    }
+
+    private ArrayList<PageSearchDto> createSearchResult(List<PageRelevanceAndData> pageData, String findQuery) {
+        ArrayList<PageSearchDto> searchResult = new ArrayList<>();
+
+        pageData.forEach(pageRelevanceAndData -> {
+            PageSearchDto searchDto = new PageSearchDto();
+            searchDto.setSite(pageRelevanceAndData.getSite());
+            searchDto.setSiteName(pageRelevanceAndData.getSiteName());
+            searchDto.setUri(pageRelevanceAndData.getUri());
+            searchDto.setTitle(JsoupData.getTitle(pageRelevanceAndData.getContent()));
+            searchDto.setSnippet(JsoupData.getSnippetInHtml(pageRelevanceAndData.getContent(), findQuery));
+            searchDto.setRelevance(pageRelevanceAndData.getRelevance());
+
+            searchResult.add(searchDto);
+        });
+
+        return searchResult;
     }
 }
+
